@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Массивы и цикл for в JavaScript</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f4ef;--card:#fff;--ink:#1f2330;--muted:#6b7080;--init:#16a34a;--cond:#e07b00;--step:#7c3aed;--body:#2563eb;--line:#e7e2d8;--bad:#dc2626}
+*{box-sizing:border-box}
+body{margin:0;font-family:Nunito,system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;font-size:17px}
+.wrap{max-width:1000px;margin:0 auto;padding:28px 16px 60px}
+h1{font-size:clamp(28px,4.5vw,42px);margin:0 0 6px;font-weight:800;line-height:1.15}
+.lead{color:var(--muted);font-size:19px;margin:0 0 26px}
+section{background:var(--card);border-radius:20px;padding:24px;margin-bottom:22px;box-shadow:0 1px 0 var(--line),0 10px 30px rgba(0,0,0,.04)}
+h2{margin:0 0 6px;font-size:25px;display:flex;align-items:center;gap:10px}
+.num{display:inline-grid;place-items:center;flex:none;width:34px;height:34px;border-radius:50%;background:var(--ink);color:#fff;font-size:17px}
+p{margin:8px 0}
+code,.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+p code,li code,.tip code{background:#f1eee7;padding:1px 6px;border-radius:6px;font-size:.9em}
+.tip{background:#fff6e5;border-left:5px solid var(--cond);padding:12px 16px;border-radius:10px;margin:14px 0}
+.tip.blue{background:#eef4ff;border-color:var(--body)}
+button{font:inherit;cursor:pointer}
+.btn{border:2px solid var(--ink);background:#fff;color:var(--ink);border-radius:12px;padding:8px 14px;font-weight:800;transition:transform .1s,background .2s}
+.btn:hover{background:#f3f0ea}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:var(--ink);color:#fff}
+.btn.primary:hover{background:#353a4b}
+.btn:disabled{opacity:.35;cursor:default}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+/* масив */
+.arr{display:flex;gap:10px;flex-wrap:wrap;padding:38px 4px 6px;position:relative;min-height:140px}
+.cell{width:74px;text-align:center;cursor:pointer;position:relative}
+.box{height:74px;border:3px solid var(--ink);border-radius:14px;display:grid;place-items:center;font-size:36px;background:#fff;transition:transform .25s,background .3s,border-color .3s}
+.box.n{font-family:'JetBrains Mono',monospace;font-size:30px;font-weight:700}
+.cell:hover .box{transform:translateY(-3px)}
+.idx{font-family:'JetBrains Mono',monospace;color:var(--muted);font-size:15px;margin-top:5px}
+.idx b{color:var(--ink)}
+.cell.sel .box{background:#e3edff;border-color:var(--body)}
+.cell.done .box{background:#ecfdf3;border-color:var(--init)}
+.cell.hit .box{animation:pop .55s ease}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.2);background:#dbe8ff;border-color:var(--body)}100%{transform:scale(1)}}
+.cell.new .box{animation:drop .45s ease}
+@keyframes drop{from{transform:translateY(-30px);opacity:0}to{transform:none;opacity:1}}
+.pointer{position:absolute;top:0;left:0;width:74px;text-align:center;font-weight:800;color:var(--step);font-family:'JetBrains Mono',monospace;font-size:15px;transition:transform .4s cubic-bezier(.4,1.4,.6,1),opacity .3s;pointer-events:none;white-space:nowrap}
+.pointer.out{color:var(--bad)}
+.pointer.hide{opacity:0}
+.readout{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px}
+.chip{background:#f4f1ea;border-radius:12px;padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:16px}
+.chip b{color:var(--body)}
+
+/* анатомія */
+.anat{font-family:'JetBrains Mono',monospace;font-size:clamp(15px,2.4vw,22px);background:#1d2130;color:#e8e8ee;border-radius:16px;padding:22px 18px 14px;overflow-x:auto;white-space:nowrap}
+.p-init{color:#4ade80}.p-cond{color:#fbbf24}.p-step{color:#c4b5fd}.p-body{color:#93c5fd}
+.parts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:16px}
+.part{border:3px solid var(--c);border-radius:16px;padding:14px 16px}
+.part h3{margin:0 0 4px;color:var(--c);font-size:19px}
+.part code{font-size:15px}
+.part p{margin:4px 0;font-size:16px}
+
+/* анімація */
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 14px}
+.tab{border:2px solid var(--line);background:#fff;border-radius:999px;padding:7px 16px;font-weight:800;color:var(--muted)}
+.tab.on{border-color:var(--ink);background:var(--ink);color:#fff}
+.explain{background:#f4f1ea;border-radius:14px;padding:14px 18px;font-size:18px;min-height:64px;display:flex;align-items:center;transition:background .3s}
+.explain.flash{background:#fff3cf}
+.c-init{color:var(--init)}.c-cond{color:var(--cond)}.c-step{color:var(--step)}.c-body{color:var(--body)}
+.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0 18px}
+.controls .counter{margin-left:auto;color:var(--muted);font-weight:700;font-size:15px}
+.speed{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:15px;font-weight:700}
+.grid{display:grid;grid-template-columns:1.1fr 1fr;gap:18px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:1fr}}
+.code{background:#1d2130;color:#e8e8ee;border-radius:16px;padding:14px 0;font-family:'JetBrains Mono',monospace;font-size:15px;overflow-x:auto}
+.ln{display:flex;padding:3px 14px 3px 0;border-left:4px solid transparent;transition:background .25s;white-space:pre}
+.ln .no{width:34px;text-align:right;padding-right:14px;color:#5d6377;flex:none;user-select:none}
+.ln.on{background:rgba(255,255,255,.09);border-left-color:#fbbf24}
+.kw{color:#f472b6}.s{color:#86efac}.fn{color:#7dd3fc}.nm{color:#fdba74}
+.pt{border-radius:6px;padding:1px 3px;transition:background .25s,box-shadow .25s}
+.pt.on[data-p=init]{background:rgba(74,222,128,.25);box-shadow:0 0 0 2px #4ade80}
+.pt.on[data-p=cond]{background:rgba(251,191,36,.25);box-shadow:0 0 0 2px #fbbf24}
+.pt.on[data-p=step]{background:rgba(196,181,253,.25);box-shadow:0 0 0 2px #c4b5fd}
+.vars{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:10px;margin-bottom:14px}
+.var{border:2px solid var(--line);border-radius:14px;padding:8px 10px;text-align:center}
+.vn{font-size:13px;color:var(--muted);font-weight:800;font-family:'JetBrains Mono',monospace}
+.vv{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:700;transition:color .3s}
+.vv.chg{animation:chg .6s}
+@keyframes chg{30%{transform:scale(1.35);color:var(--step)}}
+.badge{display:inline-block;border-radius:8px;padding:0 8px;font-size:17px;color:#fff}
+.badge.t{background:var(--init)}.badge.f{background:var(--bad)}
+#flow{width:100%;height:auto;display:block}
+.node rect{fill:#fff;stroke:var(--c);stroke-width:2.5;transition:fill .3s}
+.node text{text-anchor:middle;font:800 14px Nunito,sans-serif;fill:var(--ink);transition:fill .3s}
+.node text.sm{font:400 12px 'JetBrains Mono',monospace;fill:var(--muted)}
+.node.on rect{fill:var(--c)}
+.node.on text,.node.on text.sm{fill:#fff}
+.ar{stroke:#a3a8b5;stroke-width:2;fill:none;marker-end:url(#ah)}
+.lbl{font:800 12px Nunito,sans-serif;fill:var(--muted)}
+.consolebox{background:#0f1220;color:#d6f5dd;border-radius:14px;padding:12px 16px;font-family:'JetBrains Mono',monospace;min-height:70px;margin-top:6px}
+.consolebox .h{color:#6b7280;font-size:13px;margin-bottom:4px}
+.consolebox .o{animation:fade .35s}
+.consolebox .o::before{content:"› ";color:#6b7280}
+@keyframes fade{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
+.lbl2{font-weight:800;color:var(--muted);font-size:14px;text-transform:uppercase;letter-spacing:.05em;margin:14px 0 0}
+
+/* тест */
+.q{border-top:2px dashed var(--line);padding:16px 0 6px}
+.q:first-of-type{border-top:0}
+.q pre{background:#1d2130;color:#e8e8ee;border-radius:12px;padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:15px;overflow-x:auto;margin:8px 0}
+.opts{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.opt{border:2px solid var(--line);background:#fff;border-radius:12px;padding:8px 14px;font-weight:700}
+.opt:hover{border-color:var(--ink)}
+.opt.ok{background:#dcfce7;border-color:var(--init)}
+.opt.no{background:#fee2e2;border-color:var(--bad)}
+.fb{margin-top:8px;font-weight:600;min-height:1em}
+.score{font-weight:800;font-size:18px;margin-top:10px}
+footer{color:var(--muted);text-align:center;font-size:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Массивы и цикл <code>for</code> в JavaScript</h1>
+  <p class="lead">Нажимай, считай и смотри, как программа шаг за шагом проходит по массиву.</p>
+
+  <!-- 1. МАСИВ -->
+  <section>
+    <h2><span class="num">1</span>Массив: ряд пронумерованных коробок</h2>
+    <p><b>Массив</b> — это одна переменная, в которой хранится <b>много значений по порядку</b>. Представь ряд шкафчиков в раздевалке: у каждого свой номер, а внутри что-то лежит.</p>
+    <div class="code" style="margin:12px 0"><div class="ln"><span class="no">1</span><span id="declLine"></span></div></div>
+    <div class="arr" id="arr1"></div>
+    <div class="readout">
+      <div class="chip" id="pick">👆 Нажми на любую коробку</div>
+      <div class="chip" id="lenChip"></div>
+    </div>
+    <div class="row" style="margin-top:14px">
+      <button class="btn" id="pushBtn">+ Добавить в конец <code>push()</code></button>
+      <button class="btn" id="popBtn">− Убрать последний <code>pop()</code></button>
+    </div>
+    <div class="tip"><b>Главное правило:</b> нумерация (индекс) начинается с <b>0</b>, а не с 1! Поэтому в массиве из 4 элементов у последнего индекс <code>3</code>, то есть <code>length − 1</code>.</div>
+  </section>
+
+  <!-- 2. АНАТОМІЯ FOR -->
+  <section>
+    <h2><span class="num">2</span>Цикл <code>for</code>: повтори действие много раз</h2>
+    <p>Без цикла, чтобы показать все фрукты, пришлось бы писать <code>console.log(fruits[0])</code>, <code>console.log(fruits[1])</code>, <code>console.log(fruits[2])</code>… А если элементов 1000? Цикл делает это за нас: переменная <code>i</code> по очереди становится 0, 1, 2, 3… и «ходит» по коробкам.</p>
+    <div class="anat">
+      <span class="kw">for</span> (<span class="p-init">let i = 0</span>; <span class="p-cond">i &lt; fruits.length</span>; <span class="p-step">i++</span>) {<br>
+      &nbsp;&nbsp;<span class="p-body">console.log(fruits[i]);</span><br>}
+    </div>
+    <div class="parts">
+      <div class="part" style="--c:var(--init)"><h3>① Старт</h3><code>let i = 0</code><p>Создаём счётчик. Выполняется <b>только один раз</b> в самом начале.</p></div>
+      <div class="part" style="--c:var(--cond)"><h3>② Условие</h3><code>i &lt; fruits.length</code><p>Проверяется <b>перед каждым кругом</b>. <b>true</b> — идём дальше, <b>false</b> — цикл закончен.</p></div>
+      <div class="part" style="--c:var(--body)"><h3>③ Тело</h3><code>{ … }</code><p>То, что повторяется. Здесь <code>fruits[i]</code> — это «коробка номер i».</p></div>
+      <div class="part" style="--c:var(--step)"><h3>④ Шаг</h3><code>i++</code><p>После каждого круга увеличиваем <code>i</code> на 1 и возвращаемся к условию.</p></div>
+    </div>
+    <div class="tip blue">Порядок всегда такой: <b class="c-init">старт</b> → <b class="c-cond">условие</b> → <b class="c-body">тело</b> → <b class="c-step">шаг</b> → <b class="c-cond">условие</b> → <b class="c-body">тело</b> → <b class="c-step">шаг</b> → … → <b class="c-cond">условие false</b> → выход.</div>
+  </section>
+
+  <!-- 3. АНІМАЦІЯ -->
+  <section>
+    <h2><span class="num">3</span>Смотрим, как работает — шаг за шагом</h2>
+    <p>Нажимай <b>«Шаг ▶»</b> (или клавишу →) и следи за подсветкой в коде, стрелкой <code>i</code> над массивом и схемой.</p>
+    <div class="tabs" id="tabs">
+      <button class="tab on" data-ex="print">🍎 Вывести все элементы</button>
+      <button class="tab" data-ex="sum">➕ Посчитать сумму</button>
+      <button class="tab" data-ex="back">🔁 Пройти задом наперёд</button>
+    </div>
+
+    <div class="explain" id="explain"></div>
+    <div class="controls">
+      <button class="btn" id="prevBtn">◀ Назад</button>
+      <button class="btn primary" id="nextBtn">Шаг ▶</button>
+      <button class="btn" id="autoBtn">▶ Авто</button>
+      <button class="btn" id="resetBtn">↺ Сначала</button>
+      <label class="speed">🐢 <input type="range" id="speed" min="250" max="2200" step="50" value="1300" style="direction:rtl"> 🐇</label>
+      <span class="counter" id="counter"></span>
+    </div>
+
+    <div class="grid">
+      <div>
+        <div class="code" id="code"></div>
+        <div class="lbl2">Массив в памяти</div>
+        <div class="arr" id="arr2"></div>
+      </div>
+      <div>
+        <div class="vars" id="vars"></div>
+        <svg id="flow" viewBox="0 0 640 192" aria-label="Схема работы цикла for">
+          <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#a3a8b5"/></marker></defs>
+          <line class="ar" x1="120" y1="96" x2="167" y2="96"/>
+          <line class="ar" x1="300" y1="96" x2="347" y2="96"/><text class="lbl" x="324" y="88" text-anchor="middle">true</text>
+          <line class="ar" x1="470" y1="96" x2="517" y2="96"/>
+          <path class="ar" d="M575 122 V164 H235 V125"/><text class="lbl" x="405" y="182" text-anchor="middle">и снова проверка</text>
+          <path class="ar" d="M235 70 V48"/><text class="lbl" x="250" y="64">false</text>
+          <g class="node" id="n-start" style="--c:#16a34a"><rect x="10" y="71" width="110" height="50" rx="12"/><text x="65" y="93">① Старт</text><text class="sm" x="65" y="111">let i = 0</text></g>
+          <g class="node" id="n-cond" style="--c:#e07b00"><rect x="170" y="71" width="130" height="50" rx="12"/><text x="235" y="93">② Условие</text><text class="sm" x="235" y="111" id="flowCond">i &lt; length</text></g>
+          <g class="node" id="n-body" style="--c:#2563eb"><rect x="350" y="71" width="120" height="50" rx="12"/><text x="410" y="93">③ Тело</text><text class="sm" x="410" y="111">{ … }</text></g>
+          <g class="node" id="n-step" style="--c:#7c3aed"><rect x="520" y="71" width="110" height="50" rx="12"/><text x="575" y="93">④ Шаг</text><text class="sm" x="575" y="111" id="flowStep">i++</text></g>
+          <g class="node" id="n-exit" style="--c:#475569"><rect x="170" y="6" width="130" height="40" rx="12"/><text x="235" y="31">🏁 Выход</text></g>
+        </svg>
+        <div class="lbl2">Консоль</div>
+        <div class="consolebox" id="console"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. ТЕСТ -->
+  <section>
+    <h2><span class="num">4</span>Проверь себя</h2>
+    <div id="quiz"></div>
+    <div class="score" id="score"></div>
+  </section>
+
+  <footer>Совет: измени массив в разделе 1 (добавь или убери фрукты) — и пример «Вывести все элементы» подхватит изменения.</footer>
+</div>
+
+<script>
+const EMOJI=["🍎","🍌","🍇","🍊","🍓","🥝","🍒","🍍","🥭","🍑","🍐","🍉"];
+let fruits=["🍎","🍌","🍇","🍊"];
+let nums=[3,7,2,8];
+let selected=null;
+const $=id=>document.getElementById(id);
+
+/* ---------- 1. Масив ---------- */
+function arrLiteral(name,d,isNum){
+  return `<span class="kw">const</span> ${name} = [${d.map(x=>isNum?`<span class="nm">${x}</span>`:`<span class="s">"${x}"</span>`).join(', ')}];`;
+}
+function renderArr1(newIdx){
+  $('declLine').innerHTML=arrLiteral('fruits',fruits);
+  $('arr1').innerHTML=fruits.map((f,i)=>`<div class="cell${i===selected?' sel':''}${i===newIdx?' new':''}" data-i="${i}"><div class="box">${f}</div><div class="idx">индекс <b>${i}</b></div></div>`).join('');
+  $('lenChip').innerHTML=`fruits.length → <b>${fruits.length}</b> &nbsp;·&nbsp; последний индекс: <b>${fruits.length-1}</b>`;
+  if(selected!==null&&selected<fruits.length){$('pick').innerHTML=`fruits[<b>${selected}</b>] → "${fruits[selected]}"`;}
+  else{selected=null;$('pick').innerHTML='👆 Нажми на любую коробку';}
+  $('pushBtn').disabled=fruits.length>=8;$('popBtn').disabled=fruits.length<=1;
+}
+$('arr1').addEventListener('click',e=>{const c=e.target.closest('.cell');if(!c)return;selected=+c.dataset.i;renderArr1();});
+$('pushBtn').onclick=()=>{const free=EMOJI.filter(x=>!fruits.includes(x));fruits.push(free[Math.floor(Math.random()*free.length)]||"🍏");renderArr1(fruits.length-1);if(cur==='print'||cur==='back')reset();};
+$('popBtn').onclick=()=>{fruits.pop();renderArr1();if(cur==='print'||cur==='back')reset();};
+renderArr1();
+
+/* ---------- 3. Приклади ---------- */
+const P=(p,t)=>`<span class="pt" data-p="${p}">${t}</span>`;
+const EX={
+  print:{
+    name:'fruits',isNum:false,getData:()=>fruits.slice(),
+    forLine:n=>`<span class="kw">for</span> (${P('init','<span class="kw">let</span> i = <span class="nm">0</span>')}; ${P('cond',`i &lt; ${n}.length`)}; ${P('step','i++')}) {`,
+    body:`  console.<span class="fn">log</span>(fruits[i]);`,
+    after:`console.<span class="fn">log</span>(<span class="s">"Готово!"</span>);`,
+    vars:()=>({}),
+    start:d=>0, cond:(i,d)=>i<d.length, condTxt:(i,d)=>`${i} < ${d.length}`, next:i=>i+1, stepTxt:'i++',
+    flowCond:'i < length',
+    doBody:(d,i,v,out)=>{out.push(d[i]);return `Берём коробку с индексом <b>${i}</b>: <code>fruits[${i}]</code> = ${d[i]} и выводим в консоль.`},
+    doAfter:(d,v,out)=>{out.push('Готово!');return `Цикл закончился, программа идёт дальше и выводит «Готово!». Тело выполнилось столько раз, сколько элементов в массиве — <b>${d.length}</b>.`}
+  },
+  sum:{
+    name:'nums',isNum:true,getData:()=>nums.slice(),
+    pre:`<span class="kw">let</span> sum = <span class="nm">0</span>;`,
+    preTxt:'Создаём переменную <code>sum = 0</code> — «копилку», куда будем добавлять числа.',
+    forLine:n=>`<span class="kw">for</span> (${P('init','<span class="kw">let</span> i = <span class="nm">0</span>')}; ${P('cond',`i &lt; ${n}.length`)}; ${P('step','i++')}) {`,
+    body:`  sum = sum + nums[i];`,
+    after:`console.<span class="fn">log</span>(sum);`,
+    vars:()=>({sum:0}),
+    start:d=>0, cond:(i,d)=>i<d.length, condTxt:(i,d)=>`${i} < ${d.length}`, next:i=>i+1, stepTxt:'i++',
+    flowCond:'i < length',
+    doBody:(d,i,v)=>{const o=v.sum;v.sum+=d[i];return `<code>sum = ${o} + nums[${i}]</code> = ${o} + ${d[i]} = <b>${v.sum}</b>`},
+    doAfter:(d,v,out)=>{out.push(String(v.sum));return `Цикл закончился. Выводим сумму: <b>${v.sum}</b> (${d.join(' + ')}).`}
+  },
+  back:{
+    name:'fruits',isNum:false,getData:()=>fruits.slice(),
+    forLine:n=>`<span class="kw">for</span> (${P('init',`<span class="kw">let</span> i = ${n}.length - <span class="nm">1</span>`)}; ${P('cond','i &gt;= <span class="nm">0</span>')}; ${P('step','i--')}) {`,
+    body:`  console.<span class="fn">log</span>(fruits[i]);`,
+    after:`console.<span class="fn">log</span>(<span class="s">"Готово!"</span>);`,
+    vars:()=>({}),
+    start:d=>d.length-1, cond:(i)=>i>=0, condTxt:(i)=>`${i} >= 0`, next:i=>i-1, stepTxt:'i--',
+    flowCond:'i >= 0',
+    doBody:(d,i,v,out)=>{out.push(d[i]);return `<code>fruits[${i}]</code> = ${d[i]} → в консоль.`},
+    doAfter:(d,v,out)=>{out.push('Готово!');return 'Готово! Те же три части цикла, но старт с конца, условие <code>i >= 0</code> и шаг <code>i--</code>.'}
+  }
+};
+
+let cur='print',steps=[],pos=0,data=[],timer=null,prevVals={};
+
+function build(){
+  const ex=EX[cur];data=ex.getData();
+  const v=ex.vars(),out=[],S=[];
+  const snap=o=>S.push(Object.assign({vars:{...v},out:[...out],ptr:null,i:null,cond:null,iter:0,done:0},o));
+  snap({hl:'decl',explain:`Создаём массив <b>${ex.name}</b> из ${data.length} элементов. Индексы — от 0 до ${data.length-1}.`});
+  if(ex.pre)snap({hl:'pre',explain:ex.preTxt});
+  let i=ex.start(data),iter=0;
+  const initTxt=cur==='back'
+    ?`<b class="c-init">① Старт.</b> <code>i = ${ex.name}.length - 1</code> = ${data.length} − 1 = <b>${i}</b> — начинаем с последней коробки. Выполняется только один раз.`
+    :`<b class="c-init">① Старт.</b> Создаём счётчик <code>i = 0</code> — начнём с первой коробки. Это выполняется только <b>один раз</b>.`;
+  snap({hl:'init',i,ptr:i,explain:initTxt});
+  while(true){
+    const ok=ex.cond(i,data);
+    snap({hl:'cond',i,ptr:i,iter,done:iter,cond:{t:ex.condTxt(i,data),ok},
+      explain:ok?`<b class="c-cond">② Условие.</b> ${ex.condTxt(i,data)}? <b>Да (true)</b> → заходим в тело цикла.`
+               :`<b class="c-cond">② Условие.</b> ${ex.condTxt(i,data)}? <b>Нет (false)</b> → выходим из цикла. Коробки с индексом ${i} не существует — и правильно, что не заходим!`});
+    if(!ok)break;
+    iter++;
+    const e=ex.doBody(data,i,v,out);
+    snap({hl:'body',i,ptr:i,hit:i,iter,done:iter-1,explain:`<b class="c-body">③ Тело, круг №${iter}.</b> ${e}`});
+    const n=ex.next(i);
+    snap({hl:'step',i:n,ptr:n,iter,done:iter,explain:`<b class="c-step">④ Шаг.</b> <code>${ex.stepTxt}</code>: было <b>${i}</b>, стало <b>${n}</b>. Возвращаемся к условию.`});
+    i=n;
+  }
+  const e=ex.doAfter(data,v,out);
+  snap({hl:'after',iter,done:iter,explain:`🏁 ${e}`});
+  return S;
+}
+
+function renderCode(){
+  const ex=EX[cur],lines=[{k:'decl',h:arrLiteral(ex.name,data,ex.isNum)}];
+  if(ex.pre)lines.push({k:'pre',h:ex.pre});
+  lines.push({k:'for',h:ex.forLine(ex.name)},{k:'body',h:ex.body},{k:'close',h:'}'},{k:'after',h:ex.after});
+  $('code').innerHTML=lines.map((l,n)=>`<div class="ln" data-k="${l.k}"><span class="no">${n+1}</span><span>${l.h}</span></div>`).join('');
+  $('arr2').innerHTML=data.map((x,i)=>`<div class="cell" data-i="${i}"><div class="box${ex.isNum?' n':''}">${x}</div><div class="idx">[<b>${i}</b>]</div></div>`).join('')+`<div class="pointer hide" id="ptr"></div>`;
+  $('flowCond').textContent=ex.flowCond;$('flowStep').textContent=ex.stepTxt;
+}
+
+function placePointer(i){
+  const p=$('ptr');if(i===null||i===undefined){p.classList.add('hide');return;}
+  const cells=$('arr2').querySelectorAll('.cell');
+  let x,y;
+  if(i>=0&&i<cells.length){x=cells[i].offsetLeft;y=cells[i].offsetTop-34;p.classList.remove('out');p.innerHTML=`i = ${i}<br>▼`;}
+  else{const ref=i<0?cells[0]:cells[cells.length-1];x=ref.offsetLeft+(i<0?-84:84);y=ref.offsetTop-34;p.classList.add('out');p.innerHTML=`i = ${i}<br>✖`;}
+  p.classList.remove('hide');p.style.transform=`translate(${x}px,${y}px)`;
+}
+
+function render(anim){
+  const st=steps[pos];
+  // код
+  document.querySelectorAll('#code .ln').forEach(l=>{
+    const k=l.dataset.k;
+    l.classList.toggle('on',k===st.hl||(k==='for'&&['init','cond','step'].includes(st.hl)));
+  });
+  document.querySelectorAll('#code .pt').forEach(p=>p.classList.toggle('on',p.dataset.p===st.hl));
+  // схема
+  const map={init:'n-start',cond:'n-cond',body:'n-body',step:'n-step',after:'n-exit'};
+  document.querySelectorAll('#flow .node').forEach(n=>n.classList.toggle('on',n.id===map[st.hl]));
+  // змінні
+  const vals={i:st.i===null?'—':st.i,...st.vars,'круг №':st.iter||'—'};
+  let h='';
+  for(const k in vals){const ch=anim&&prevVals[k]!==undefined&&prevVals[k]!==vals[k];h+=`<div class="var"><div class="vn">${k}</div><div class="vv${ch?' chg':''}">${vals[k]}</div></div>`;}
+  h+=`<div class="var"><div class="vn">условие</div><div class="vv" style="font-size:17px;padding-top:6px">${st.cond?`${st.cond.t} <span class="badge ${st.cond.ok?'t':'f'}">${st.cond.ok}</span>`:'—'}</div></div>`;
+  $('vars').innerHTML=h;prevVals=vals;
+  // масив
+  const back=cur==='back';
+  $('arr2').querySelectorAll('.cell').forEach((c,i)=>{
+    const visited=back?(i>=data.length-st.done):(i<st.done);
+    c.classList.toggle('done',visited);
+    c.classList.remove('hit','sel');
+    if(st.hit===i){c.classList.add('sel');if(anim){void c.offsetWidth;c.classList.add('hit');}}
+  });
+  placePointer(st.ptr);
+  // консоль
+  $('console').innerHTML='<div class="h">// здесь появляется то, что выводит console.log</div>'+st.out.map((o,k)=>`<div class="${anim&&k===st.out.length-1&&steps[pos-1]&&steps[pos-1].out.length<st.out.length?'o':''}">${o}</div>`).join('');
+  // пояснення
+  const ex=$('explain');ex.innerHTML=st.explain;
+  if(anim){ex.classList.add('flash');setTimeout(()=>ex.classList.remove('flash'),250);}
+  $('counter').textContent=`Шаг ${pos+1} из ${steps.length}`;
+  $('prevBtn').disabled=pos===0;$('nextBtn').disabled=pos===steps.length-1;
+}
+
+function next(){if(pos<steps.length-1){pos++;render(true);}else stopAuto();}
+function prev(){if(pos>0){pos--;render(false);}}
+function reset(){stopAuto();steps=build();pos=0;prevVals={};renderCode();requestAnimationFrame(()=>render(false));}
+function startAuto(){if(pos>=steps.length-1){pos=0;render(false);}$('autoBtn').textContent='⏸ Пауза';tick();}
+function tick(){timer=setTimeout(()=>{next();if(pos<steps.length-1)tick();else stopAuto();},+$('speed').value);}
+function stopAuto(){clearTimeout(timer);timer=null;$('autoBtn').textContent='▶ Авто';}
+$('nextBtn').onclick=()=>{stopAuto();next();};
+$('prevBtn').onclick=()=>{stopAuto();prev();};
+$('resetBtn').onclick=reset;
+$('autoBtn').onclick=()=>timer?stopAuto():startAuto();
+$('tabs').addEventListener('click',e=>{
+  const t=e.target.closest('.tab');if(!t)return;
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===t));
+  cur=t.dataset.ex;
+  if(cur==='sum'&&t.dataset.used){nums=Array.from({length:3+Math.floor(Math.random()*3)},()=>1+Math.floor(Math.random()*9));}
+  t.dataset.used=1;reset();
+});
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT')return;
+  if(e.key==='ArrowRight'){stopAuto();next();}
+  else if(e.key==='ArrowLeft'){stopAuto();prev();}
+});
+window.addEventListener('resize',()=>placePointer(steps[pos]&&steps[pos].ptr));
+reset();
+
+/* ---------- 4. Тест ---------- */
+const Q=[
+  {q:'Что будет в <code>a[1]</code>?',code:'const a = ["кот", "пёс", "ёж"];',o:['"кот"','"пёс"','"ёж"','undefined'],r:1,e:'Индексы начинаются с 0: a[0] — "кот", a[1] — "пёс".'},
+  {q:'Сколько раз выполнится тело цикла?',code:'for (let i = 0; i < 3; i++) {\n  console.log(i);\n}',o:['2','3','4'],r:1,e:'i будет 0, 1, 2. Когда i становится 3, условие 3 < 3 — false, и цикл останавливается.'},
+  {q:'В массиве 5 элементов. Какой индекс у последнего?',o:['5','4','6'],r:1,e:'Последний индекс = length − 1 = 5 − 1 = 4.'},
+  {q:'Что случится, если написать <code>i &lt;= arr.length</code> вместо <code>i &lt; arr.length</code>?',o:['Ничего, всё так же','Будет один лишний круг, и arr[i] даст undefined','Цикл не запустится вообще'],r:1,e:'Когда i равно length, такой коробки нет — получим undefined.'},
+  {q:'Какая часть цикла выполняется только ОДИН раз?',o:['Старт (let i = 0)','Условие (i < length)','Шаг (i++)'],r:0,e:'Старт выполняется один раз, а условие и шаг — на каждом круге.'}
+];
+let answered=0,right=0;
+$('quiz').innerHTML=Q.map((q,n)=>`<div class="q" data-n="${n}"><b>${n+1}. ${q.q}</b>${q.code?`<pre>${q.code}</pre>`:''}<div class="opts">${q.o.map((o,k)=>`<button class="opt" data-k="${k}">${o}</button>`).join('')}</div><div class="fb"></div></div>`).join('');
+$('quiz').addEventListener('click',e=>{
+  const b=e.target.closest('.opt');if(!b)return;
+  const qd=b.closest('.q');if(qd.dataset.done)return;
+  const q=Q[+qd.dataset.n],k=+b.dataset.k;qd.dataset.done=1;answered++;
+  qd.querySelectorAll('.opt')[q.r].classList.add('ok');
+  if(k===q.r){right++;qd.querySelector('.fb').innerHTML='✅ Правильно! '+q.e;}
+  else{b.classList.add('no');qd.querySelector('.fb').innerHTML='❌ Не совсем. '+q.e;}
+  if(answered===Q.length)$('score').textContent=`Результат: ${right} из ${Q.length} ${right===Q.length?'🎉 Отлично!':right>=3?'👍 Неплохо!':'— посмотри анимацию ещё раз 🙂'}`;
+});
+</script>
+</body>
+</html>
